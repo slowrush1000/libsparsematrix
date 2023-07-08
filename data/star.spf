@@ -1,0 +1,34 @@
+*
+*|DSPF 1.0
+*|DESIGN top
+*|DATE “Wed May 17 13:34:43 2000”
+*|VENDOR “Synopsys”
+*|PROGRAM “StarRC”
+*|VERSION “2003.2.0.0”
+*|DIVIDER /
+*|DELIMITER :
+*
+.SUBCKT top net1
+
+*|GROUND_NET 0
+*|NET net1 9.60e-04PF
+*|P (net1 I 0 3.6 0)
+*|I (U1:I U1 I I 4e-15 6.76 8.94)
+R1 net1 U1:I 29.8492
+Cg1 net1 0 5.8737e-16
+Cg2 U1:I 0 3.72441e-16
+
+*|NET insta/net2 5.10e-04PF
+*|I (insta/U1:ZN insta/U1 ZN O 0 9.12 21.84)
+*|I (insta/U2:I insta/U2 I I 4e-15 6.34 20.94)
+R2 insta/U1:ZN insta/U2:I 16.8989
+Cg3 insta/U1:ZN 0 2.96927e-16
+Cg4 insta/U2:I 0 2.13328e-16
+
+*
+* Instance Section
+*
+Xinsta/U2 insta/U2:I in2 VDD VSS inv
+Xinsta/U1 in1 insta/U1:ZN VDD VSS inv
+XU1 U1:I net2 VDD VSS inv
+.ENDS

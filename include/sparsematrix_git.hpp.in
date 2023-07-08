@@ -1,0 +1,24 @@
+/**
+ * @file sparsematrix_git.hpp
+ * @author Cheon Younghoe (you@domain.com)
+ * @brief
+ * @version 0.1
+ * @date 2023-06-17
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
+#ifndef YH_SPARSEMATRIX_GIT_H_
+#define YH_SPARSEMATRIX_GIT_H_
+
+#include <string>
+
+namespace yh::sparsematrix
+{
+    const std::string k_GIT_BRANCH      = "@GIT_BRANCH@";
+    const std::string k_GIT_COMMIT_HASH = "@GIT_COMMIT_HASH@";
+    const std::string k_SOURCE_DIR      = "@SOURCE_DIR@";
+} // namespace yh::sparsematrix
+
+#endif // YH_SPARSEMATRIX_GIT_H_

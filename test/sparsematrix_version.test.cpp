@@ -14,4 +14,5 @@
 
 TEST(VERSION_TEST, init)
 {
+    std::cout << "version : " << yh::sparsematrix::k_VERSION.GetInfoMsg() << "\n";
 }

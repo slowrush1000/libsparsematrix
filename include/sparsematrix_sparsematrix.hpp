@@ -14,9 +14,9 @@
 
 #include <cstdint>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <tuple>
 
 namespace yh::sparsematrix
 {
@@ -52,30 +52,30 @@ namespace yh::sparsematrix
             index_tt GetColumnSize() const;
             index_tt GetNNZ();
 
-            void ReadIJVFile(const std::string &filename);
-            void WriteIJVFile(const std::string &filename);
+            void ReadIJVFile(const std::string& filename);
+            void WriteIJVFile(const std::string& filename);
 
-            template<typename T1, typename T2>
+            template <typename T1, typename T2>
             std::tuple<T1*, T1*, T1*, void*>
             GetPardisoNIaJaA()
             {
-                auto    nnz         = this->GetNNZ();
+                auto nnz       = this->GetNNZ();
 
-                T1*     pardiso_n   = new T1;
-                T1*     pardiso_ia  = new T1 [m_row_size + 1];
-                T1*     pardiso_ja  = new T1 [nnz];
-                T2*     pardiso_a   = new T2 [nnz];
+                T1* pardiso_n  = new T1;
+                T1* pardiso_ia = new T1[m_row_size + 1];
+                T1* pardiso_ja = new T1[nnz];
+                T2* pardiso_a  = new T2[nnz];
 
                 //
-                *pardiso_n          = m_row_size;
+                *pardiso_n     = m_row_size;
 
-                T1      a_count = 0;
-                T1      ia_count = 0;
+                T1 a_count     = 0;
+                T1 ia_count    = 0;
 
-                pardiso_ia[0]       = 0;
+                pardiso_ia[0]  = 0;
 
-                auto row_index  = this->GetRowIndex();
-                for (const auto &row : row_index)
+                auto row_index = this->GetRowIndex();
+                for (const auto& row : row_index)
                 {
                     if (1 == row)
                         pardiso_ia[0] = 0;
@@ -83,7 +83,7 @@ namespace yh::sparsematrix
                         pardiso_ia[row - 1] = a_count - pardiso_ia[row - 2];
 
                     auto column_index = this->GetColumnIndex(row);
-                    for (const auto &column : column_index)
+                    for (const auto& column : column_index)
                     {
                         pardiso_a[a_count]  = this->GetValue(row, column);
                         pardiso_ja[a_count] = column;
@@ -92,17 +92,19 @@ namespace yh::sparsematrix
                 }
                 pardiso_ia[m_row_size] = nnz;
 
-                return  { pardiso_n, pardiso_ia, pardiso_ja, pardiso_a };
+                return {pardiso_n, pardiso_ia, pardiso_ja, pardiso_a};
             }
 
-            std::tuple<long long*, long long*, long long*, void*> GetPardisoNIaJaA64();
+            std::tuple<long long*, long long*, long long*, void*>
+            GetPardiso64NIaJaA();
 
         private:
             row_tt m_rows;
             index_tt m_row_size    = 0;
             index_tt m_column_size = 0;
+            index_tt m_nnz         = 0;
             bool m_one_index       = true;
-            bool m_symmetric        = false;
+            bool m_symmetric       = false;
     };
 
 }  // namespace yh::sparsematrix

@@ -11,7 +11,11 @@
 
 #include "sparsematrix_git.hpp"
 #include "gtest/gtest.h"
+#include <iostream>
 
 TEST(GIT_TEST, init)
 {
+    std::cout << "k_GIT_BRANCH      : " << yh::sparsematrix::k_GIT_BRANCH << "\n";
+    std::cout << "k_GIT_COMMIT_HASH : " << yh::sparsematrix::k_GIT_COMMIT_HASH << "\n";
+    std::cout << "k_SOURCE_DIR      : " << yh::sparsematrix::k_SOURCE_DIR << "\n";
 }

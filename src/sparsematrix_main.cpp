@@ -9,6 +9,10 @@
  *
  */
 
+#include "sparsematrix_main.hpp"
+
+#include "sparsematrix_version.hpp"
+
 int
 main(int argc, char **argv)
 {

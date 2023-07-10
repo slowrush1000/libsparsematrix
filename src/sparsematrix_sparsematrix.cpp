@@ -30,9 +30,9 @@ yh::sparsematrix::SparseMatrix::AddValue(
     if (m_row_size < row_index) m_row_size = row_index;
     if (m_column_size < column_index) m_column_size = column_index;
 
-    // if matrix is symmetric, upper triangle matrix is generated.(For Intel Pardiso Solver)
-    if ((true == m_symmetric) && (row_index > column_index))
-        return;
+    // if matrix is symmetric, upper triangle matrix is generated.(For Intel
+    // Pardiso Solver)
+    if ((true == m_symmetric) && (row_index > column_index)) return;
 
     auto found = m_rows.find(row_index);
     if (m_rows.end() == found)
@@ -40,6 +40,7 @@ yh::sparsematrix::SparseMatrix::AddValue(
         yh::sparsematrix::column_tt column;
         column[column_index] = value;
         m_rows[row_index]    = column;
+        ++m_nnz;
     }
     else
     {
@@ -48,6 +49,7 @@ yh::sparsematrix::SparseMatrix::AddValue(
         if (column.end() == found_1)
         {
             column[column_index] = value;
+            ++m_nnz;
         }
         else
         {
@@ -94,13 +96,13 @@ yh::sparsematrix::SparseMatrix::GetOneIndex() const
     return m_one_index;
 }
 
-void 
+void
 yh::sparsematrix::SparseMatrix::SetSymmetric(const bool symmetric)
 {
     m_symmetric = symmetric;
 }
 
-bool 
+bool
 yh::sparsematrix::SparseMatrix::GetSymmetric() const
 {
     return m_symmetric;
@@ -111,8 +113,7 @@ yh::sparsematrix::SparseMatrix::GetRowIndex()
 {
     std::vector<yh::sparsematrix::index_tt> row_index;
 
-    for (auto iter : m_rows)
-        row_index.emplace_back(iter.first);
+    for (auto iter : m_rows) row_index.emplace_back(iter.first);
 
     std::sort(row_index.begin(), row_index.end());
 
@@ -153,17 +154,19 @@ yh::sparsematrix::SparseMatrix::GetColumnSize() const
 yh::sparsematrix::index_tt
 yh::sparsematrix::SparseMatrix::GetNNZ()
 {
+    /*
     yh::sparsematrix::index_tt nnz = 0;
 
-    auto row_index = this->GetRowIndex();
+    auto row_index                 = this->GetRowIndex();
     for (const auto &row : row_index)
     {
         auto column_index = this->GetColumnIndex(row);
-        for (const auto &column : column_index)
-            ++nnz;
+        for (const auto &column : column_index) ++nnz;
     }
 
     return nnz;
+    */
+    return m_nnz;
 }
 
 void
@@ -223,9 +226,9 @@ yh::sparsematrix::SparseMatrix::WriteIJVFile(const std::string &filename)
     file.close();
 }
 
-std::tuple<long long*, long long*, long long*, void*> 
-yh::sparsematrix::SparseMatrix::GetPardisoNIaJaA64()
+std::tuple<long long *, long long *, long long *, void *>
+yh::sparsematrix::SparseMatrix::GetPardiso64NIaJaA()
 {
     return this->GetPardisoNIaJaA<long long, double>();
-    //const auto [n, a, ia, ja] = this->GetPardisoAIaJa<long long, double>();
+    // const auto [n, a, ia, ja] = this->GetPardisoAIaJa<long long, double>();
 }

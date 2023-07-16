@@ -23,7 +23,7 @@ set(PROJECT_SRC_DIR             "${CMAKE_SOURCE_DIR}/src")
 set(PROJECT_INC_DIR             "${CMAKE_SOURCE_DIR}/include")
 
 # ctags : make ctags
-add_custom_target(ctags
+add_custom_target(ctags ALL
     COMMENT "Generate tags file with ctags"
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMAND ctags -R --c++-kinds=+p --fields=+iaS --extra=+q ${CMAKE_SOURCE_DIR}
@@ -31,7 +31,7 @@ add_custom_target(ctags
 )
 
 # clangformat : make clang-format
-add_custom_target(clang-format
+add_custom_target(clang-format ALL
     COMMENT "Format source codes"
     COMMAND /usr/bin/clang-format -i ${CMAKE_SOURCE_DIR}/src/*.cpp
     COMMAND /usr/bin/clang-format -i ${CMAKE_SOURCE_DIR}/include/*.hpp

@@ -12,6 +12,7 @@
 #ifndef YH_SPARSEMATRIX_VERSION_H_
 #define YH_SPARSEMATRIX_VERSION_H_
 
+#include "sparsematrix_git.hpp"
 #include "util_version.hpp"
 
 namespace yh::sparsematrix
@@ -20,8 +21,8 @@ namespace yh::sparsematrix
                                       20230709,
                                       0,
                                       0,
-                                      std::string(__DATE__),
-                                      std::string(__TIME__));
+                                      k_BUILD_DATE,
+                                      k_BUILD_TIME);
 }  // namespace yh::sparsematrix
 
 #endif  // YH_SPARSEMATRIX_VERSION_H_

@@ -35,6 +35,11 @@ target_link_libraries(${PROJECT_TEST_EXE_NAME}  ${GOOGLETEST_LIBRARIES})
 set_target_properties(${PROJECT_TEST_EXE_NAME}  PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY})
 set_target_properties(${PROJECT_TEST_EXE_NAME}  PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY})
 
+add_custom_target(test
+    COMMENT "Run unit test"
+    COMMAND ${RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_TEST_EXE_NAME} --gtest_output=xml:${RUNTIME_OUTPUT_DIRECTORY}/test.result.xml
+)
+
 # yh::sparsematrix
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     set(SPF_LIBRARIES                           "sparsematrix.dbg")

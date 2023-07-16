@@ -56,9 +56,9 @@ set_target_properties(${PROJECT_EXE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${
 set_target_properties(${PROJECT_LIB_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY})
 
 # copy compile_commands.json to project root directory
-add_custom_target(
-    copy-compile-commands ALL
-    ${CMAKE_COMMAND} -E copy_if_different 
+add_custom_target(copy-compile-commands ALL
+    COMMENT "Copy compile commands"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
         ${RUNTIME_OUTPUT_DIRECTORY}/compile_commands.json 
         ${CMAKE_SOURCE_DIR}
 )

@@ -19,6 +19,8 @@ namespace yh::sparsematrix
     const std::string k_GIT_BRANCH      = "@GIT_BRANCH@";
     const std::string k_GIT_COMMIT_HASH = "@GIT_COMMIT_HASH@";
     const std::string k_SOURCE_DIR      = "@SOURCE_DIR@";
+    const std::string k_BUILD_DATE      = std::string(__DATE__);
+    const std::string k_BUILD_TIME      = std::string(__TIME__);
 } // namespace yh::sparsematrix
 
 #endif // YH_SPARSEMATRIX_GIT_H_

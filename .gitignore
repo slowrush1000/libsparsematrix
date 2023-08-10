@@ -8,7 +8,7 @@ docs/html
 docs/latex
 include/*.sw*
 include/tags
-include/spf_git.hpp
+include/sparsematrix_git.hpp
 src/*.sw*
 src/tags
 test/*.sw*

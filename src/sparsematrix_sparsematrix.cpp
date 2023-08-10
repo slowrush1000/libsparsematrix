@@ -41,19 +41,28 @@ yh::sparsematrix::SparseMatrix::AddValue(
         column[column_index] = value;
         m_rows[row_index]    = column;
         ++m_nnz;
+        /*
+        std::cout << __func__ << "row column value nnz : " << row_index << " "
+                  << column_index << " " << value << " " << m_nnz << "\n";
+                  */
     }
     else
     {
-        auto &column = found->second;
+        auto& column = found->second;
         auto found_1 = column.find(column_index);
         if (column.end() == found_1)
         {
             column[column_index] = value;
             ++m_nnz;
+            /*
+            std::cout << __func__ << "row column value nnz : " << row_index
+                      << " " << column_index << " " << value << " " << m_nnz
+                      << "\n";
+                      */
         }
         else
         {
-            auto &value_1 = found_1->second;
+            auto& value_1 = found_1->second;
             value_1 += value;
         }
     }
@@ -71,7 +80,7 @@ yh::sparsematrix::SparseMatrix::GetValue(
     }
     else
     {
-        auto &column = found->second;
+        auto& column = found->second;
         auto found_1 = column.find(column_index);
         if (column.end() == found_1)
         {
@@ -129,7 +138,7 @@ yh::sparsematrix::SparseMatrix::GetColumnIndex(
     auto found_row = m_rows.find(row_index);
     if (m_rows.end() != found_row)
     {
-        const auto &column = found_row->second;
+        const auto& column = found_row->second;
 
         for (auto iter : column) column_index.emplace_back(iter.first);
     }
@@ -154,29 +163,18 @@ yh::sparsematrix::SparseMatrix::GetColumnSize() const
 yh::sparsematrix::index_tt
 yh::sparsematrix::SparseMatrix::GetNNZ()
 {
-    /*
-    yh::sparsematrix::index_tt nnz = 0;
-
-    auto row_index                 = this->GetRowIndex();
-    for (const auto &row : row_index)
-    {
-        auto column_index = this->GetColumnIndex(row);
-        for (const auto &column : column_index) ++nnz;
-    }
-
-    return nnz;
-    */
     return m_nnz;
 }
 
 void
-yh::sparsematrix::SparseMatrix::ReadIJVFile(const std::string &filename)
+yh::sparsematrix::SparseMatrix::ReadIJVFile(const std::string& filename)
 {
     igzstream file;
     file.open(filename.c_str());
     if (false == file.good())
     {
-        std::cout << "# error : file(" << filename << ") open failed.\n";
+        std::cout << "# error : file(" << filename << ") open failed("
+                  << __func__ << ").\n";
         exit(0);
     }
 
@@ -204,21 +202,22 @@ yh::sparsematrix::SparseMatrix::ReadIJVFile(const std::string &filename)
 }
 
 void
-yh::sparsematrix::SparseMatrix::WriteIJVFile(const std::string &filename)
+yh::sparsematrix::SparseMatrix::WriteIJVFile(const std::string& filename)
 {
     std::ofstream file;
     file.open(filename);
     if (false == file.is_open())
     {
-        std::cout << "# error : file(" << filename << ") open failed.\n";
+        std::cout << "# error : file(" << filename << ") open failed("
+                  << __func__ << ").\n";
         exit(0);
     }
 
     auto row_index = this->GetRowIndex();
-    for (const auto &row : row_index)
+    for (const auto& row : row_index)
     {
         auto column_index = this->GetColumnIndex(row);
-        for (const auto &column : column_index)
+        for (const auto& column : column_index)
             file << fmt::format(
                 "{} {} {:e}\n", row, column, this->GetValue(row, column));
     }
@@ -226,7 +225,216 @@ yh::sparsematrix::SparseMatrix::WriteIJVFile(const std::string &filename)
     file.close();
 }
 
-std::tuple<long long *, long long *, long long *, void *>
+void
+yh::sparsematrix::SparseMatrix::WriteBinIaJaAFile(const std::string& prefix)
+{
+    std::cout << "# write bin ia, ja, a file(prefix : " << prefix << ").\n";
+    const auto [n, ia, ja, a] = this->GetPardiso64NIaJaA();
+
+    auto ia_filename          = fmt::format("{}.{}.ia.bin", prefix, *n);
+    long long nnz             = this->WriteBinIaFile(ia_filename, n, ia, ja, a);
+    auto ja_filename          = fmt::format("{}.{}.ja.bin", prefix, *n);
+    this->WriteBinJaFile(ja_filename, n, ia, ja, a, nnz);
+    auto a_filename = fmt::format("{}.{}.a.bin", prefix, *n);
+    this->WriteBinAFile(a_filename, n, ia, ja, a, nnz);
+}
+
+long long
+yh::sparsematrix::SparseMatrix::WriteBinIaFile(const std::string& filename,
+                                               long long* n,
+                                               long long* ia,
+                                               long long* ja,
+                                               void* a)
+{
+    auto file = std::ofstream(filename, std::ios::binary);
+    if (false == file.is_open())
+    {
+        std::cout << "# error : file(" << filename << ") open failed("
+                  << __func__ << ").\n";
+        exit(0);
+    }
+
+    file.write(reinterpret_cast<const char*>(ia), sizeof(long long) * (*n + 1));
+
+    file.close();
+
+    return ia[*n];
+}
+
+void
+yh::sparsematrix::SparseMatrix::WriteBinJaFile(const std::string& filename,
+                                               long long* n,
+                                               long long* ia,
+                                               long long* ja,
+                                               void* a,
+                                               const long long nnz)
+{
+    auto file = std::ofstream(filename, std::ios::binary);
+    if (false == file.is_open())
+    {
+        std::cout << "# error : file(" << filename << ") open failed("
+                  << __func__ << ").\n";
+        exit(0);
+    }
+
+    file.write(reinterpret_cast<const char*>(ja), sizeof(long long) * nnz);
+
+    file.close();
+}
+
+void
+yh::sparsematrix::SparseMatrix::WriteBinAFile(const std::string& filename,
+                                              long long* n,
+                                              long long* ia,
+                                              long long* ja,
+                                              void* a,
+                                              const long long nnz)
+{
+    auto file = std::ofstream(filename, std::ios::binary);
+    if (false == file.is_open())
+    {
+        std::cout << "# error : file(" << filename << ") open failed("
+                  << __func__ << ").\n";
+        exit(0);
+    }
+
+    file.write(reinterpret_cast<const char*>(a), sizeof(double) * nnz);
+
+    file.close();
+}
+
+void
+yh::sparsematrix::SparseMatrix::ReadBinIaJaAFile(const long long n,
+                                                 const std::string& ia_filename,
+                                                 const std::string& ja_filename,
+                                                 const std::string& a_filename)
+{
+    std::cout << "# read bin ia, ja, a file.\n";
+    //
+    long long* ia       = this->ReadBinIaFile(n, ia_filename);
+    long long* ja       = this->ReadBinJaFile(n, ia[n], ja_filename);
+    void* a             = this->ReadBinAFile(n, ia[n], a_filename);
+
+    //
+    m_nnz               = 0;
+
+    //
+    /*
+    std::cout << "# add value to sparsermatrix\n";
+    std::cout << "n : " << n << "\n";
+    std::cout << "nnz : " << m_nnz << "\n";
+    */
+    long long value_pos = 0;
+    for (auto row = 1; row < (n + 1); ++row)
+    {
+        auto column_start_pos = ia[row - 1];
+        auto column_end_pos   = ia[row];
+
+        for (auto column_pos = column_start_pos; column_pos < column_end_pos;
+             ++column_pos)
+        {
+            auto column  = ja[column_pos];
+            double value = ((double*)a)[value_pos];
+
+            this->AddValue(row, column, value);
+
+            /*
+            std::cout << "row column value value_pos " << row << " " << column
+                      << " " << value << " " << value_pos << "\n";
+                      */
+
+            ++value_pos;
+        }
+    }
+}
+
+long long*
+yh::sparsematrix::SparseMatrix::ReadBinIaFile(const long long n,
+                                              const std::string& ia_filename)
+{
+    long long* ia = new long long[n + 1];
+
+    auto file     = std::ifstream(ia_filename, std::ios::binary);
+    if (false == file.is_open())
+    {
+        std::cout << "# error : file(" << ia_filename << ") open failed("
+                  << __func__ << ").\n";
+        exit(0);
+    }
+
+    file.read(reinterpret_cast<char*>(ia), sizeof(long long) * (n + 1));
+
+    /*
+    for (auto pos = 0; pos < (n + 1); ++pos)
+    {
+        std::cout << "ia[" << pos << "] : " << ia[pos] << "\n";
+    }
+    */
+
+    file.close();
+
+    return ia;
+}
+
+long long*
+yh::sparsematrix::SparseMatrix::ReadBinJaFile(const long long n,
+                                              const long long nnz,
+                                              const std::string& ja_filename)
+{
+    long long* ja = new long long[nnz];
+
+    auto file     = std::ifstream(ja_filename, std::ios::binary);
+    if (false == file.is_open())
+    {
+        std::cout << "# error : file(" << ja_filename << ") open failed("
+                  << __func__ << ").\n";
+        exit(0);
+    }
+
+    file.read(reinterpret_cast<char*>(ja), sizeof(long long) * nnz);
+
+    /*
+    for (auto pos = 0; pos < nnz; ++pos)
+    {
+        std::cout << "ja[" << pos << "] : " << ja[pos] << "\n";
+    }
+    */
+
+    file.close();
+
+    return ja;
+}
+
+void*
+yh::sparsematrix::SparseMatrix::ReadBinAFile(const long long n,
+                                             const long long nnz,
+                                             const std::string& a_filename)
+{
+    double* a = new double[nnz];
+
+    auto file = std::ifstream(a_filename, std::ios::binary);
+    if (false == file.is_open())
+    {
+        std::cout << "# error : file(" << a_filename << ") open failed("
+                  << __func__ << ").\n";
+        exit(0);
+    }
+
+    file.read(reinterpret_cast<char*>(a), sizeof(double) * nnz);
+
+    /*
+    for (auto pos = 0; pos < nnz; ++pos)
+    {
+        std::cout << "a[" << pos << "] : " << (double)a[pos] << "\n";
+    }
+    */
+
+    file.close();
+
+    return a;
+}
+
+std::tuple<long long*, long long*, long long*, void*>
 yh::sparsematrix::SparseMatrix::GetPardiso64NIaJaA()
 {
     return this->GetPardisoNIaJaA<long long, double>();

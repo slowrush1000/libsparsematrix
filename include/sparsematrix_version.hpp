@@ -18,7 +18,7 @@
 namespace yh::sparsematrix
 {
     const yh::util::Version k_VERSION(std::string("sparsematrix"),
-                                      20230709,
+                                      20230810,
                                       0,
                                       0,
                                       k_BUILD_DATE,

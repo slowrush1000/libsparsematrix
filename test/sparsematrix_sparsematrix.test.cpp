@@ -111,3 +111,49 @@ TEST(SPARSEMATRIX_TEST, GetPardiso64NIaJaA)
     }
     std::cout << "\n";
 }
+
+TEST(SPARSEMATRIX_TEST, WriteBinReadBin)
+{
+    yh::sparsematrix::SparseMatrix  sm;
+    sm.ReadIJVFile("/media/PROJECT02/project/libsparsematrix/data/01.ijv");
+
+    //const auto [n, ia, ja, a] = sm.GetPardiso64NIaJaA();
+
+    sm.WriteBinIaJaAFile(std::string("01"));
+
+    yh::sparsematrix::SparseMatrix  sm_1;
+
+    auto    n_1             = sm.GetRowSize();
+    auto    ia_filename     = std::string("/media/PROJECT02/project/libsparsematrix/build/release/test/01.2.ia.bin");
+    auto    ja_filename     = std::string("/media/PROJECT02/project/libsparsematrix/build/release/test/01.2.ja.bin");
+    auto    a_filename      = std::string("/media/PROJECT02/project/libsparsematrix/build/release/test/01.2.a.bin");
+
+    sm_1.ReadBinIaJaAFile(n_1, ia_filename, ja_filename, a_filename);
+
+    const auto [n, ia, ja, a] = sm_1.GetPardiso64NIaJaA();
+
+    std::cout << "n  : " << *n << "\n";
+    std::cout << "nnz  : " << sm_1.GetNNZ() << "\n";
+    std::cout << "ia :";
+    for (auto pos = 0; pos <= *n; ++pos)
+    {
+        std::cout << " " << ia[pos];
+    }
+    std::cout << "\n";
+
+    std::cout << "ja :";
+    for (auto pos = 0; pos < *n; ++pos)
+    {
+        for (auto pos_1 = ia[pos]; pos_1 < ia[pos + 1]; ++pos_1)
+            std::cout << " " << ja[pos_1];
+    }
+    std::cout << "\n";
+
+    std::cout << "a  :";
+    for (auto pos = 0; pos < *n; ++pos)
+    {
+        for (auto pos_1 = ia[pos]; pos_1 < ia[pos + 1]; ++pos_1)
+            std::cout << " " << ((double *)a)[pos_1];
+    }
+    std::cout << "\n";
+}

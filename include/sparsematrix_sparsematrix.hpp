@@ -55,6 +55,37 @@ namespace yh::sparsematrix
             void ReadIJVFile(const std::string& filename);
             void WriteIJVFile(const std::string& filename);
 
+            void WriteBinIaJaAFile(const std::string& prefix);
+            long long WriteBinIaFile(const std::string& filename,
+                                     long long* n,
+                                     long long* ia,
+                                     long long* ja,
+                                     void* a);
+            void WriteBinJaFile(const std::string& filename,
+                                long long* n,
+                                long long* ia,
+                                long long* ja,
+                                void* a,
+                                const long long nnz);
+            void WriteBinAFile(const std::string& filename,
+                               long long* n,
+                               long long* ia,
+                               long long* ja,
+                               void* a,
+                               const long long nnz);
+            void ReadBinIaJaAFile(const long long n,
+                                  const std::string& ia_filename,
+                                  const std::string& ja_filename,
+                                  const std::string& a_filename);
+            long long* ReadBinIaFile(const long long n,
+                                     const std::string& ia_filename);
+            long long* ReadBinJaFile(const long long n,
+                                     const long long nnz,
+                                     const std::string& ja_filename);
+            void* ReadBinAFile(const long long n,
+                               const long long nnz,
+                               const std::string& a_filename);
+
             template <typename T1, typename T2>
             std::tuple<T1*, T1*, T1*, void*>
             GetPardisoNIaJaA()
